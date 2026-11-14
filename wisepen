@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+wisepen_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+case "$(uname -s)" in
+  MINGW*|MSYS*)
+    wisepen_root=$(cygpath -m "$wisepen_root")
+    # Keep all user values intact; Node converts only declared local paths.
+    export MSYS2_ARG_CONV_EXCL='*'
+    export MSYS_NO_PATHCONV=1
+    export WISEPEN_INTERNAL_MSYS=1
+    ;;
+esac
+if ! command -v node >/dev/null 2>&1; then
+  printf '%s\n' 'WisePenCli requires Node.js 22.13+ on PATH.' >&2
+  exit 127
+fi
+exec node "$wisepen_root/dist/cli.js" "$@"

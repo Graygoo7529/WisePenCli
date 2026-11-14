@@ -1,0 +1,2899 @@
+{
+  "schemaVersion": "2",
+  "source": "src/contracts/api.ts + models.ts; consumed fields only",
+  "endpoints": {
+    "login": {
+      "method": "POST",
+      "path": "/auth/login",
+      "auth": false,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "account",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "logout": {
+      "method": "POST",
+      "path": "/auth/logout",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "me": {
+      "method": "GET",
+      "path": "/user/getUserInfo",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "userInfo": {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "username"
+            ],
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "userId",
+          "userInfo"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    "groups": {
+      "method": "GET",
+      "path": "/group/list",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "groupRoleFilter": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "JOINED",
+              "MANAGED"
+            ]
+          },
+          "groupType": {
+            "type": "string",
+            "enum": [
+              "NORMAL_GROUP",
+              "ADVANCED_GROUP",
+              "MARKET_GROUP"
+            ]
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "groupRoleFilter"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "groupId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "groupName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "groupType": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "groupId",
+                "groupName",
+                "groupType"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalPage": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "totalPage"
+        ]
+      }
+    },
+    "group": {
+      "method": "GET",
+      "path": "/group/getGroupDetailInfo",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "groupName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "groupType": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "groupId",
+          "groupName",
+          "groupType"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    "members": {
+      "method": "GET",
+      "path": "/group/member/list",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "groupId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "memberId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "role": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "memberId",
+                "role"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalPage": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "totalPage"
+        ]
+      }
+    },
+    "tags": {
+      "method": "GET",
+      "path": "/resource/tag/getTagTree",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema0"
+        },
+        "$defs": {
+          "__schema0": {
+            "type": "object",
+            "properties": {
+              "tagId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "tagName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "isPath": {
+                "type": "boolean"
+              },
+              "children": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema0"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "tagId",
+              "parentId",
+              "tagName",
+              "isPath",
+              "children"
+            ],
+            "additionalProperties": {}
+          }
+        }
+      }
+    },
+    "addTag": {
+      "method": "POST",
+      "path": "/resource/tag/addTag",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "parentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tagName": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "tagName"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "renameTag": {
+      "method": "POST",
+      "path": "/resource/tag/changeTag",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "targetTagId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tagName": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "targetTagId",
+          "tagName"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "moveTag": {
+      "method": "POST",
+      "path": "/resource/tag/moveTags",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "targetTagIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "newParentId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "targetTagIds"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "resources": {
+      "method": "GET",
+      "path": "/resource/item/listResources",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "tagQueryLogicMode": {
+            "type": "string",
+            "enum": [
+              "AND",
+              "OR"
+            ]
+          },
+          "resourceType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "UPDATE_TIME",
+              "CREATE_TIME",
+              "NAME",
+              "SIZE"
+            ]
+          },
+          "sortDir": {
+            "type": "string",
+            "enum": [
+              "ASC",
+              "DESC"
+            ]
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "tagQueryLogicMode",
+          "sortBy",
+          "sortDir"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resourceName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ownerId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "currentActions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "tagBinds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
+                  }
+                }
+              },
+              "required": [
+                "resourceId",
+                "resourceName",
+                "resourceType"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalPage": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "totalPage"
+        ]
+      }
+    },
+    "resource": {
+      "method": "GET",
+      "path": "/resource/item/getResourceBaseInfo",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resourceName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resourceType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currentActions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tagBinds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          }
+        },
+        "required": [
+          "resourceId",
+          "resourceName",
+          "resourceType"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    "search": {
+      "method": "GET",
+      "path": "/resource/search/globalSearchResources",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "keyword": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "DOCUMENT",
+              "NOTE"
+            ]
+          },
+          "resourceTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "keyword",
+          "scope"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resourceName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ownerId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "currentActions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "tagBinds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
+                  }
+                }
+              },
+              "required": [
+                "resourceId",
+                "resourceName",
+                "resourceType"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalPage": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "totalPage"
+        ]
+      }
+    },
+    "renameResource": {
+      "method": "POST",
+      "path": "/resource/item/renameResource",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "newName": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceId",
+          "newName"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "removeResource": {
+      "method": "POST",
+      "path": "/resource/item/removeResources",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "resourceIds"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "personalMove": {
+      "method": "POST",
+      "path": "/resource/placement/setPersonalResourcesPathTag",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "targetPathTagId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceIds",
+          "targetPathTagId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "resourceCount"
+        ]
+      }
+    },
+    "trash": {
+      "method": "POST",
+      "path": "/resource/placement/movePersonalResourcesToTrash",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "resourceIds"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "resourceCount"
+        ]
+      }
+    },
+    "mount": {
+      "method": "POST",
+      "path": "/resource/placement/mountResourcesToGroup",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "targetTagId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceIds",
+          "groupId",
+          "targetTagId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "resourceCount"
+        ]
+      }
+    },
+    "unmount": {
+      "method": "POST",
+      "path": "/resource/placement/unmountResourcesToGroup",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resourceSourceTagMap": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1
+            },
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "groupId",
+          "resourceSourceTagMap"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "resourceCount"
+        ]
+      }
+    },
+    "groupMove": {
+      "method": "POST",
+      "path": "/resource/placement/moveResourcesInGroup",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resourceSourceTagMap": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1
+            },
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "targetTagId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "groupId",
+          "resourceSourceTagMap",
+          "targetTagId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "resourceCount"
+        ]
+      }
+    },
+    "sessions": {
+      "method": "GET",
+      "path": "/chat/session/listSessions",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "page",
+          "size"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "created_at",
+                "updated_at"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "total_page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "total_page"
+        ]
+      }
+    },
+    "history": {
+      "method": "GET",
+      "path": "/chat/session/listHistoryMessages",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "session_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "session_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "assistant",
+                    "system"
+                  ]
+                },
+                "parts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": {}
+                  }
+                },
+                "createdAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "role",
+                "parts",
+                "createdAt"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "total_page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "total_page"
+        ]
+      }
+    },
+    "renameSession": {
+      "method": "POST",
+      "path": "/chat/session/renameSession",
+      "query": [
+        "session_id"
+      ],
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "new_title": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "session_id",
+          "new_title"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    "deleteSession": {
+      "method": "POST",
+      "path": "/chat/session/deleteSession",
+      "query": true,
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "upload": {
+      "method": "POST",
+      "path": "/document/uploadDoc",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "minLength": 1
+          },
+          "extension": {
+            "type": "string",
+            "enum": [
+              "pdf",
+              "doc",
+              "docx",
+              "ppt",
+              "pptx",
+              "xls",
+              "xlsx"
+            ]
+          },
+          "md5": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{32}$"
+          },
+          "expectedSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 104857600
+          },
+          "mountTargetTagId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "filename",
+          "extension",
+          "md5",
+          "expectedSize"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "putUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "callbackHeader": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "objectKey": {
+            "type": "string",
+            "minLength": 1
+          },
+          "flashUploaded": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documentId",
+          "putUrl",
+          "callbackHeader",
+          "objectKey",
+          "flashUploaded"
+        ]
+      }
+    },
+    "pending": {
+      "method": "GET",
+      "path": "/document/listPendingDocs",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentStatus": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "UPLOADING",
+                    "UPLOADED",
+                    "CONVERTING_AND_PARSING",
+                    "REGISTERING_RES",
+                    "READY",
+                    "TRANSFER_TIMEOUT",
+                    "REGISTERING_RES_TIMEOUT",
+                    "FAILED"
+                  ]
+                },
+                "errorMessage": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "status",
+                "errorMessage"
+              ]
+            },
+            "uploadMeta": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "documentStatus",
+            "uploadMeta"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    },
+    "refresh": {
+      "method": "POST",
+      "path": "/document/syncDocStatus",
+      "query": true,
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "documentId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "UPLOADING",
+              "UPLOADED",
+              "CONVERTING_AND_PARSING",
+              "REGISTERING_RES",
+              "READY",
+              "TRANSFER_TIMEOUT",
+              "REGISTERING_RES_TIMEOUT",
+              "FAILED"
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "errorMessage"
+        ]
+      }
+    },
+    "retryDoc": {
+      "method": "POST",
+      "path": "/document/retryDocProcess",
+      "query": true,
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "documentId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "cancelDoc": {
+      "method": "POST",
+      "path": "/document/cancelDocProcess",
+      "query": true,
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "documentId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "docInfo": {
+      "method": "GET",
+      "path": "/document/getDocInfo",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceInfo": {
+            "type": "object",
+            "properties": {
+              "resourceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resourceName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "ownerId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "currentActions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tagBinds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                }
+              }
+            },
+            "required": [
+              "resourceId",
+              "resourceName",
+              "resourceType"
+            ],
+            "additionalProperties": {}
+          },
+          "documentVersionInfo": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "documentStatus": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "UPLOADING",
+                          "UPLOADED",
+                          "CONVERTING_AND_PARSING",
+                          "REGISTERING_RES",
+                          "READY",
+                          "TRANSFER_TIMEOUT",
+                          "REGISTERING_RES_TIMEOUT",
+                          "FAILED"
+                        ]
+                      },
+                      "errorMessage": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "errorMessage"
+                    ]
+                  }
+                },
+                "required": [
+                  "documentStatus"
+                ],
+                "additionalProperties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "resourceInfo",
+          "documentVersionInfo"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    "noteCreate": {
+      "method": "POST",
+      "path": "/note/addNote",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resourceType": {
+            "type": "string",
+            "const": "NOTE"
+          },
+          "mountTargetTagId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "title",
+          "resourceType"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "noteInfo": {
+      "method": "GET",
+      "path": "/note/getNoteInfo",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceInfo": {
+            "type": "object",
+            "properties": {
+              "resourceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resourceName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "ownerId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "currentActions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tagBinds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                }
+              }
+            },
+            "required": [
+              "resourceId",
+              "resourceName",
+              "resourceType"
+            ],
+            "additionalProperties": {}
+          },
+          "version": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "resourceInfo",
+          "version"
+        ],
+        "additionalProperties": {}
+      }
+    },
+    "noteVersions": {
+      "method": "GET",
+      "path": "/note/listNoteVersions",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "resourceId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "type": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "version",
+                "type"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "size": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "totalPage": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "list",
+          "total",
+          "page",
+          "size",
+          "totalPage"
+        ]
+      }
+    },
+    "noteFork": {
+      "method": "POST",
+      "path": "/note/forkNote",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forkedResourceVersion": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "forkedResourceName": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "resourceId"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "providers": {
+      "method": "GET",
+      "path": "/chat/model/listUserProviders",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "providers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f\\d]{24}$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": [
+                    "USER",
+                    "SYSTEM"
+                  ]
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "ALIBABA",
+                    "OPENAI",
+                    "ANTHROPIC",
+                    "GOOGLE",
+                    "OPENAI_COMPATIBLE"
+                  ]
+                },
+                "base_url": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "api_key_fingerprint": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "is_active": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "scope",
+                "type",
+                "base_url",
+                "api_key_fingerprint",
+                "is_active"
+              ],
+              "additionalProperties": {}
+            }
+          }
+        },
+        "required": [
+          "providers"
+        ]
+      }
+    },
+    "models": {
+      "method": "GET",
+      "path": "/chat/model/listModels",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "model_scope": {
+            "type": "string",
+            "enum": [
+              "SYSTEM",
+              "USER"
+            ]
+          }
+        },
+        "required": [
+          "model_scope"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f\\d]{24}$"
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": [
+                    "USER",
+                    "SYSTEM"
+                  ]
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "mappings": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "model_id": {
+                            "type": "string",
+                            "pattern": "^[a-f\\d]{24}$"
+                          },
+                          "provider_id": {
+                            "type": "string",
+                            "pattern": "^[a-f\\d]{24}$"
+                          },
+                          "provider_model_name": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "model_id",
+                          "provider_id",
+                          "provider_model_name"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "display_name",
+                "scope",
+                "is_active",
+                "mappings"
+              ],
+              "additionalProperties": {}
+            }
+          }
+        },
+        "required": [
+          "models"
+        ]
+      }
+    },
+    "available": {
+      "method": "GET",
+      "path": "/chat/model/listAvailableModels",
+      "query": true,
+      "auth": true,
+      "readOnly": true,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "system_models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f\\d]{24}$"
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": [
+                    "USER",
+                    "SYSTEM"
+                  ]
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "mappings": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "model_id": {
+                            "type": "string",
+                            "pattern": "^[a-f\\d]{24}$"
+                          },
+                          "provider_id": {
+                            "type": "string",
+                            "pattern": "^[a-f\\d]{24}$"
+                          },
+                          "provider_model_name": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "model_id",
+                          "provider_id",
+                          "provider_model_name"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "display_name",
+                "scope",
+                "is_active",
+                "mappings"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "user_models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f\\d]{24}$"
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": [
+                    "USER",
+                    "SYSTEM"
+                  ]
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "mappings": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "model_id": {
+                            "type": "string",
+                            "pattern": "^[a-f\\d]{24}$"
+                          },
+                          "provider_id": {
+                            "type": "string",
+                            "pattern": "^[a-f\\d]{24}$"
+                          },
+                          "provider_model_name": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "model_id",
+                          "provider_id",
+                          "provider_model_name"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "display_name",
+                "scope",
+                "is_active",
+                "mappings"
+              ],
+              "additionalProperties": {}
+            }
+          }
+        },
+        "required": [
+          "system_models",
+          "user_models"
+        ]
+      }
+    },
+    "createProvider": {
+      "method": "POST",
+      "path": "/chat/model/createUserProvider",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ALIBABA",
+              "OPENAI",
+              "ANTHROPIC",
+              "GOOGLE",
+              "OPENAI_COMPATIBLE"
+            ]
+          },
+          "api_key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "api_key"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "updateProvider": {
+      "method": "POST",
+      "path": "/chat/model/updateUserProvider",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ALIBABA",
+              "OPENAI",
+              "ANTHROPIC",
+              "GOOGLE",
+              "OPENAI_COMPATIBLE"
+            ]
+          },
+          "api_key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "provider_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          }
+        },
+        "required": [
+          "provider_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "deleteProvider": {
+      "method": "POST",
+      "path": "/chat/model/deleteUserProvider",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          }
+        },
+        "required": [
+          "provider_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "createModel": {
+      "method": "POST",
+      "path": "/chat/model/createUserModel",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model_family": {
+            "type": "string",
+            "enum": [
+              "QWEN",
+              "GPT",
+              "CLAUDE",
+              "GEMINI",
+              "GENERIC"
+            ]
+          },
+          "support_thinking": {
+            "type": "boolean"
+          },
+          "support_vision": {
+            "type": "boolean"
+          },
+          "support_tools": {
+            "type": "boolean"
+          },
+          "context_window_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "display_name"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "updateModel": {
+      "method": "POST",
+      "path": "/chat/model/updateUserModel",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model_family": {
+            "type": "string",
+            "enum": [
+              "QWEN",
+              "GPT",
+              "CLAUDE",
+              "GEMINI",
+              "GENERIC"
+            ]
+          },
+          "support_thinking": {
+            "type": "boolean"
+          },
+          "support_vision": {
+            "type": "boolean"
+          },
+          "support_tools": {
+            "type": "boolean"
+          },
+          "context_window_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "deleteModel": {
+      "method": "POST",
+      "path": "/chat/model/deleteUserModel",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          }
+        },
+        "required": [
+          "model_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "bind": {
+      "method": "POST",
+      "path": "/chat/model/bindModelProvider",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          },
+          "provider_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          },
+          "provider_model_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "input_billing_ratio": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)?$"
+          },
+          "cached_input_billing_ratio": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)?$"
+          },
+          "output_billing_ratio": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)?$"
+          },
+          "is_preferred": {
+            "type": "boolean"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model_id",
+          "provider_id",
+          "provider_model_name"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    },
+    "unbind": {
+      "method": "POST",
+      "path": "/chat/model/unbindModelProvider",
+      "auth": true,
+      "readOnly": false,
+      "successCode": 200,
+      "request": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          },
+          "provider_id": {
+            "type": "string",
+            "pattern": "^[a-f\\d]{24}$"
+          }
+        },
+        "required": [
+          "model_id",
+          "provider_id"
+        ],
+        "additionalProperties": false
+      },
+      "responseWire": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "const": ""
+          }
+        ]
+      }
+    }
+  }
+}

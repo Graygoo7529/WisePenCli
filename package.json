@@ -1,0 +1,34 @@
+{
+  "name": "@wisepen/cli",
+  "version": "0.2.0",
+  "description": "WisePen 用户与 agent 的命令行客户端",
+  "type": "module",
+  "bin": { "wisepen": "dist/cli.js" },
+  "files": ["dist", "docs", "skills", "README.md", "wisepen", "wisepen.cmd"],
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "docs:contracts": "npm run build && node scripts/generate-contracts.mjs",
+    "build:portable": "npm run build && node scripts/build-portable.mjs",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "commander": "^14.0.1",
+    "lib0": "^0.2.114",
+    "ws": "^8.18.3",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "@types/ws": "^8.18.1",
+    "eslint": "^9.39.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4"
+  }
+}

@@ -1,0 +1,23 @@
+# Dependencies and generated build output
+node_modules/
+dist/
+coverage/
+*.tgz
+
+# Local runtime state and configuration
+.wisepen/
+data/
+wisepen.json
+config.lock
+.env
+.env.*
+!.env.example
+
+# Generated portable bundle. It may contain a live auth token.
+/wisepen-cli/
+
+# Local release archives
+/wisepen-cli*.zip
+/wisepen-cli*.tar.gz
+/release/
+/releases/
