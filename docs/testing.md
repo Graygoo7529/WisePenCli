@@ -23,3 +23,5 @@ sudo "$(command -v node)" scripts/verify-shared-directory.mjs
 构建后可在开发测试进程设置 `WISEPEN_TEST_PACKAGE=wisepen-cli` 再运行现有测试，以便从产物复制 dist、启动器及生产依赖进入隔离测试目录。这个变量仅供测试脚本使用，不是产品配置或认证环境变量。
 
 当前本机 Windows 结果：47 项自动化测试中 46 项通过、1 项 POSIX 权限测试跳过；便携产物 5 项关键流程通过。真实 Windows PTY 已验证隐藏密码登录，以及账号/密码提示处 Ctrl+C 返回 130，取消后可再次登录。Linux/macOS、真实两个 OS 账户仍待对应环境执行；未执行项不算通过。详细结果记录在执行计划的实施核对表。
+
+macOS 的临时目录可能以 `/var/...` 返回，但 Node 加载程序时会解析为 `/private/var/...`。测试夹具现在先使用 `realpath` 规范化临时目录，避免只因路径别名造成断言失败；修改后的 macOS 结果仍需等待 GitHub Actions 重新运行确认。

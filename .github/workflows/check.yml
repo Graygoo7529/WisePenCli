@@ -17,10 +17,15 @@ jobs:
       - run: npm run check
       - run: npm run docs:contracts
       - run: npm run build:portable
-      - name: Check portable production dependencies and launchers
+      - run: npm run build:release
+      - name: Check local portable package production dependencies and launchers
         run: node --test --test-name-pattern="真正启动链路|plaintext 登录|会话失效优先" tests/cli.test.mjs
         env:
           WISEPEN_TEST_PACKAGE: wisepen-cli
+      - name: Check clean release package production dependencies and launchers
+        run: node --test --test-name-pattern="真正启动链路|plaintext 登录|会话失效优先" tests/cli.test.mjs
+        env:
+          WISEPEN_TEST_PACKAGE: releases/wisepen-cli
       - name: Verify two OS users share login and tasks
         if: runner.os == 'Linux'
         run: sudo "$(command -v node)" scripts/verify-shared-directory.mjs

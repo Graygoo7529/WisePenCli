@@ -16,6 +16,7 @@ for (const name of ['dist', 'node_modules', 'skills', 'package.json', 'package-l
 }
 for (const name of ['dist', 'node_modules', 'skills']) await cp(join(root, name), join(target, name), { recursive: true });
 await writeFile(join(target, 'package.json'), JSON.stringify({ name: '@wisepen/cli-portable', version: sourcePackage.version, private: true, type: 'module', engines: sourcePackage.engines, dependencies: sourcePackage.dependencies }, null, 2) + '\n');
+await cp(join(root, 'package-lock.json'), join(target, 'package-lock.json'));
 const npmArgs = ['prune', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--offline', '--prefix', target];
 if (process.platform === 'win32') execFileSync(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', 'npm.cmd', ...npmArgs], { stdio: 'inherit', windowsHide: true });
 else execFileSync('npm', npmArgs, { stdio: 'inherit' });

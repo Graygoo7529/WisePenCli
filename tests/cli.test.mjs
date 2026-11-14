@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, writeFile, readdir, rm, mkdir, cp, symlink, chmod, stat } from 'node:fs/promises';
+import { mkdtemp, realpath, readFile, writeFile, readdir, rm, mkdir, cp, symlink, chmod, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { WebSocketServer } from 'ws';
@@ -156,7 +156,9 @@ for (const launcher of process.platform === 'win32' ? ['powershell', 'cmd', 'bas
 });
 
 async function fixture(t, handler = () => undefined) {
-  const root = await mkdtemp(join(tmpdir(), 'wisepen cli test-'));
+  // macOS exposes /var as a symlink to /private/var. The CLI is loaded by
+  // Node through its real path, so fixture paths must use the same spelling.
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'wisepen cli test-')));
   const dir = join(root, 'data'); await mkdir(dir, { mode: 0o700 });
   await cp(join(project, 'dist'), join(root, 'dist'), { recursive: true });
   await symlink(join(project, 'node_modules'), join(root, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
