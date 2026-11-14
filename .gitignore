@@ -15,6 +15,7 @@ config.lock
 
 # Generated portable bundle. It may contain a live auth token.
 /wisepen-cli/
+/agent-plugins/
 
 # Local release archives
 /wisepen-cli*.zip

@@ -3,8 +3,8 @@
   "version": "0.2.0",
   "description": "WisePen 用户与 agent 的命令行客户端",
   "type": "module",
-  "bin": { "wisepen": "dist/cli.js" },
-  "files": ["dist", "docs", "skills", "README.md", "wisepen", "wisepen.cmd"],
+  "bin": { "wisepen": "dist/cli.js", "wisepen-mcp": "dist/mcp.js" },
+  "files": ["dist", "docs", "skills", "scripts/build-plugins.mjs", "README.md", "wisepen", "wisepen.cmd"],
   "engines": { "node": ">=22.13.0" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -14,9 +14,11 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "docs:contracts": "npm run build && node scripts/generate-contracts.mjs",
     "build:portable": "npm run build && node scripts/build-portable.mjs",
+    "build:plugins": "node scripts/build-plugins.mjs",
     "prepack": "npm run build"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "^2.4.0",
     "commander": "^14.0.1",
     "lib0": "^0.2.114",
     "ws": "^8.18.3",
@@ -25,6 +27,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "^2.4.0",
     "@types/node": "^22.19.0",
     "@types/ws": "^8.18.1",
     "eslint": "^9.39.1",

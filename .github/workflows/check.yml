@@ -18,7 +18,7 @@ jobs:
       - run: npm run docs:contracts
       - run: npm run build:portable
       - name: Check portable production dependencies and launchers
-        run: node --test --test-name-pattern="真正启动链路|plaintext 登录|会话失效优先" tests/cli.test.mjs
+        run: node --test --test-name-pattern="真正启动链路|plaintext 登录|会话失效优先|MCP" tests/cli.test.mjs
         env:
           WISEPEN_TEST_PACKAGE: wisepen-cli
       - name: Verify two OS users share login and tasks

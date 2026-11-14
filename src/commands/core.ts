@@ -4,7 +4,7 @@ import { api } from '../contracts/api.js';
 import { CliError, invalid } from '../errors.js';
 import { assertServiceConfigured, clearCredential, saveCredential, withLock, setConfig, configKeys, configValue, loadSettings } from '../runtime/config.js';
 import { prompt, secretInput } from '../runtime/io.js';
-import { commands, define, optionalText, flag } from './registry.js';
+import { commands, define, optionalText, flag, VERSION } from './registry.js';
 import { globals } from '../runtime/context.js';
 
 const none = z.strictObject({});
@@ -59,6 +59,6 @@ define({ name: 'auth revoke', description: '注销服务端共享会话，可能
 define({ name: 'schema', description: '列出命令，或查看一个命令的输入与输出约定', effect: 'read', input: z.strictObject({ command: z.string().optional() }), options: [['--command <command>', '例如 "resource show"']], run: async (_ctx, input) => {
   const selected = input.command ? commands.filter(c => c.name === input.command) : commands;
   if (!selected.length) invalid('未知命令。');
-  if (!input.command) return { version: '0.2.0', commands: selected.map(c => ({ name: c.name, description: c.description, effect: c.effect })) };
+  if (!input.command) return { version: VERSION, commands: selected.map(c => ({ name: c.name, description: c.description, effect: c.effect })) };
   return { schemaVersion: '2', globals: z.toJSONSchema(globals.extend({ input: z.string().optional() }), { io: 'input' }), output: { schemaVersion: '2', command: 'string', ok: 'boolean', data: 'command-specific; null on failure', meta: { apiUrl: 'string|null', dataDir: 'string|null', operationId: 'UUID', outcome: 'not-started|applied|pending|partial|unknown', verification: 'string' }, warnings: 'string[]', error: 'null|{code,message,details,nextActions}' }, commands: selected.map(c => ({ name: c.name, description: c.description, effect: c.effect, input: z.toJSONSchema(c.input, { io: 'input' }) })) };
 } });

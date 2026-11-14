@@ -25,6 +25,9 @@ const cmd = (await readFile(join(root, 'wisepen.cmd'), 'utf8')).replace(/\r?\n/g
 await writeFile(join(target, 'wisepen.cmd'), cmd);
 await cp(join(root, 'docs', 'portable-README.md'), join(target, 'README.md'));
 await cp(join(root, 'docs', 'CLI使用说明.md'), join(target, 'USAGE.md'));
+await cp(join(root, 'docs', 'agent-integrations.md'), join(target, 'AGENT-INTEGRATIONS.md'));
+await mkdir(join(target, 'scripts'), { recursive: true });
+await cp(join(root, 'scripts', 'build-plugins.mjs'), join(target, 'scripts', 'build-plugins.mjs'));
 await mkdir(join(target, 'data'), { recursive: true, mode: 0o700 });
 await writeFile(join(target, 'data', '.gitkeep'), '');
 await writeFile(join(target, 'data', '.gitignore'), '*\n!.gitignore\n!.gitkeep\n');

@@ -36,3 +36,5 @@ Linux/macOS 示例：`./wisepen config set --key dataDir --value /srv/shared/wis
 从 0.1 升级后首次需重新 `login`。旧凭据和任务不会被删除；若检测到旧自定义服务，先按提示明确配置 `apiUrl`。`logout` 只清除本目录会话；`auth revoke --yes` 才撤销服务端共享会话，可能同时影响浏览器与其他副本。
 
 常用指令见 [USAGE.md](USAGE.md)，agent 使用方式见 [Skill](skills/wisepen-cli/SKILL.md)。不熟悉的命令使用 `--help` 或 `schema --command "resource show" --json`。
+
+[MCP 与插件安装](AGENT-INTEGRATIONS.md) 说明如何在本机生成 Codex、Claude Code、DeepSeek Harness 插件和通用 MCP 配置。
