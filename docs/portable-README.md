@@ -22,6 +22,8 @@ Linux/macOS 若解压工具丢失执行权限，先运行 `chmod +x wisepen`，�
 
 默认会话和任务保存在本目录 `data/`。其中 `auth.json` 是明文令牌，不保存密码。不要求用户和 agent 使用相同操作系统账户，但双方须能访问数据目录。共享这个目录即共享当前 WisePen 身份。
 
+文档上传支持 PDF、DOC/DOCX、PPT/PPTX、XLS/XLSX，单文件最大 100 MiB；使用 `doc upload --group <名称> --to /子目录` 可直接上传到小组目录。
+
 一次指定其他数据目录，此后仍可直接运行启动器：
 
 ```powershell

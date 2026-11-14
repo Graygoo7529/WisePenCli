@@ -3,23 +3,26 @@ import { readFile, stat } from 'node:fs/promises';
 import { basename, extname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { api } from '../contracts/api.js';
-import { folder, destination, resolveResource } from '../domain/resolve.js';
+import { api, documentExtensions } from '../contracts/api.js';
+import { folder, destination, resolveGroup, resolveResource } from '../domain/resolve.js';
 import { transferUrl, saveTask, listTasks, download, requireDocumentId } from '../domain/transfers.js';
 import { CliError, invalid } from '../errors.js';
 import { parse } from '../runtime/io.js';
 import { define, text, number, flag, selector, selectorOptions } from './registry.js';
 
-define({ name: 'doc upload', description: '上传文档到个人目录，返回独立文档任务 ID', effect: 'write', input: z.strictObject({ file: z.string(), to: z.string().default('/') }), options: [['--file <file>', '本地文档路径'], ['--to <path>', '个人目标目录，默认 /']], run: async (ctx, i) => {
+define({ name: 'doc upload', description: '上传文档到个人或小组目录，返回独立文档任务 ID', effect: 'write', input: z.strictObject({ file: z.string(), to: z.string().default('/'), group: z.string().optional(), groupId: z.string().optional() }), options: [['--file <file>', '本地文档路径（PDF、DOC/DOCX、PPT/PPTX、XLS/XLSX，最大 100 MiB）'], ['--to <path>', '远端目标目录，默认 /'], ['--group <name>', '目标小组精确名称'], ['--group-id <id>', '目标小组 ID']], run: async (ctx, i) => {
   const file = text(i, 'file'); const info = await stat(file); if (!info.isFile() || info.size < 1 || info.size > 104857600) invalid('仅支持 1 字节至 100 MiB 的普通文档文件。');
   const content = await readFile(file); if (content.length > 104857600) invalid('文件超过 100 MiB。');
   const md5 = createHash('md5').update(content).digest('hex'); const extension = extname(file).slice(1).toLowerCase();
-  const mountTargetTagId = destination(await folder(ctx, text(i, 'to')));
+  if (!(documentExtensions as readonly string[]).includes(extension)) invalid(`不支持的文档格式 .${extension || '(无扩展名)'}`, { extension, supportedExtensions: documentExtensions.map(value => `.${value}`) });
+  const groupId = await resolveGroup(ctx, i);
+  const targetFolder = await folder(ctx, text(i, 'to'), groupId);
+  const mountTargetTagId = destination(targetFolder);
   const body = parse(api.upload.request, { filename: basename(file), extension, md5, expectedSize: content.length, mountTargetTagId });
   const actor = await (await ctx.api()).call(api.me);
   return ctx.write({ ...body as object, file }, async () => {
     const task = await (await ctx.api()).call(api.upload, body); ctx.outcome = 'pending';
-    const state = { userId: actor.userId, filename: basename(file), md5, size: content.length, targetTagId: mountTargetTagId, stage: 'registered' };
+    const state = { userId: actor.userId, filename: basename(file), md5, size: content.length, targetTagId: mountTargetTagId, groupId, stage: 'registered' };
     try { await saveTask(ctx, task.documentId, state); }
     catch { throw new CliError('TASK_JOURNAL_FAILED', '任务已创建，但本地记录保存失败；请保存 documentId 并查询任务。', 9, { documentId: task.documentId }, 'partial'); }
     if (!task.flashUploaded) {
@@ -32,7 +35,7 @@ define({ name: 'doc upload', description: '上传文档到个人目录，返回�
     }
     await saveTask(ctx, task.documentId, { ...state, stage: task.flashUploaded ? 'flash-uploaded' : 'transferred' }).catch(() => { ctx.warnings.push('传输已完成，本地任务记录更新失败；使用返回的 documentId 继续查询。'); });
     // ctx.write acknowledges submission; pending describes processing after transfer.
-    return { documentId: task.documentId, resourceId: null, flashUploaded: task.flashUploaded, processing: 'pending', next: `wisepen doc wait --document-id ${task.documentId}` };
+    return { documentId: task.documentId, resourceId: null, flashUploaded: task.flashUploaded, processing: 'pending', target: { groupId: targetFolder.groupId ?? null, path: targetFolder.path }, next: `wisepen doc wait --document-id ${task.documentId}` };
   }).then(result => { if (!ctx.options.dryRun) ctx.outcome = 'pending'; return result; });
 } });
 define({ name: 'doc tasks', description: '列出数据目录中当前服务和账号的上传任务', effect: 'read', input: z.strictObject({}), run: listTasks });

@@ -16,6 +16,7 @@ export const pythonPage = <T>(item: z.ZodType<T>) => z.object({ list: z.array(it
 export const session = z.object({ id, title: id, created_at: z.string(), updated_at: z.string() }).passthrough();
 export const message = z.object({ id, role: z.enum(['user', 'assistant', 'system']), parts: z.array(z.object({ type: id }).passthrough()), createdAt: z.string().nullable() }).passthrough();
 export const status = z.object({ status: z.enum(['UPLOADING', 'UPLOADED', 'CONVERTING_AND_PARSING', 'REGISTERING_RES', 'READY', 'TRANSFER_TIMEOUT', 'REGISTERING_RES_TIMEOUT', 'FAILED']), errorMessage: z.string().nullable() });
+export const documentExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'] as const;
 export const pendingDoc = z.object({ documentId: id.optional(), documentStatus: status, uploadMeta: object }).passthrough();
 export const resourceIdInput = z.strictObject({ resourceId: id });
 export const docIdInput = z.strictObject({ documentId: id });
@@ -52,7 +53,7 @@ export const api = {
   history: endpoint('GET', '/chat/session/listHistoryMessages', z.strictObject({ ...pageInput, session_id: id }), pythonPage(message)),
   renameSession: endpoint('POST', '/chat/session/renameSession', z.strictObject({ session_id: id, new_title: nonblank }), session, { query: ['session_id'] }),
   deleteSession: endpoint('POST', '/chat/session/deleteSession', z.strictObject({ session_id: id }), empty, { query: true }),
-  upload: endpoint('POST', '/document/uploadDoc', z.strictObject({ filename: nonblank, extension: z.enum(['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']), md5: z.string().regex(/^[a-f\d]{32}$/), expectedSize: z.number().int().min(1).max(104857600), mountTargetTagId: id.optional() }), z.object({ documentId: id, putUrl: z.string().nullable(), callbackHeader: z.string().nullable(), objectKey: id, flashUploaded: z.boolean() })),
+  upload: endpoint('POST', '/document/uploadDoc', z.strictObject({ filename: nonblank, extension: z.enum(documentExtensions), md5: z.string().regex(/^[a-f\d]{32}$/), expectedSize: z.number().int().min(1).max(104857600), mountTargetTagId: id.optional() }), z.object({ documentId: id, putUrl: z.string().nullable(), callbackHeader: z.string().nullable(), objectKey: id, flashUploaded: z.boolean() })),
   pending: endpoint('GET', '/document/listPendingDocs', noInput, z.array(pendingDoc)),
   refresh: endpoint('POST', '/document/syncDocStatus', docIdInput, status, { query: true }),
   retryDoc: endpoint('POST', '/document/retryDocProcess', docIdInput, empty, { query: true }),

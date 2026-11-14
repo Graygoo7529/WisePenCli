@@ -58,6 +58,7 @@ W resource delete --path /.Trash/旧稿.pdf --yes --json
 
 ```text
 W doc upload --file <本地文件.pdf> --to /研究 --json
+W doc upload --file <本地文件.pdf> --group "研究组" --to /资料 --json
 W doc wait --document-id <documentId> --max-wait 300 --json
 W doc status --document-id <documentId> --json
 W doc tasks --json
@@ -71,7 +72,7 @@ W note read --id <resourceId> --experimental --json
 W web url --id <resourceId> --json
 ```
 
-documentId 是上传任务 ID，resourceId 是资源 ID。`pending` 只表示任务已提交；`doc wait/refresh` 会刷新并可能推进处理，`doc status` 是只读查询。等待停止不代表服务端任务停止；不要因为任务不在 pending 列表中就推断已经完成。`doc retry/cancel` 按服务端状态决定能否操作。
+上传支持 PDF、DOC/DOCX、PPT/PPTX、XLS/XLSX，单文件最大 100 MiB；目标可以是个人目录或小组子目录。documentId 是上传任务 ID，resourceId 是资源 ID。`pending` 只表示任务已提交；`doc wait/refresh` 会刷新并可能推进处理，`doc status` 是只读查询。当前服务的状态接口可能不返回 resourceId，不能按文件名盲猜资源；需要时用 `search`，仅在名称完全匹配且结果唯一时继续。等待停止不代表服务端任务停止；不要因为任务不在 pending 列表中就推断已经完成。`doc retry/cancel` 按服务端状态决定能否操作。
 
 笔记正文读取是实验性协同快照，文本/Markdown 可能丢失结构；正文编辑、Office 排版、PDF 标注和图形编辑用网页。`web url` 不携带认证凭据，浏览器需要自己的登录状态。CLI 不发送新聊天消息。
 

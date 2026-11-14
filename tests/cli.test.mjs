@@ -288,6 +288,26 @@ test('上传不泄露签名 URL、仅 PUT 对象存储、保留任务与资源�
   assert.equal(out.code, 0); assert.equal(out.data.data.documentId, 'task1'); assert.equal(out.data.data.resourceId, null); assert.equal(out.data.meta.outcome, 'pending'); assert.equal(auth, undefined); assert.ok(!out.stdout.includes('Signature')); assert.ok(!out.stdout.includes('callback-secret'));
   const journal = (await f.run(['doc', 'tasks'])).data.data[0]; assert.equal(journal.stage, 'transferred'); assert.equal(journal.documentId, 'task1');
 });
+test('上传在客户端拒绝不支持的文档格式', async t => {
+  const f = await fixture(t);
+  const file = join(f.dir, 'notes.txt'); await writeFile(file, 'plain text');
+  const out = await f.run(['doc', 'upload', '--file', file]);
+  assert.equal(out.code, 2); assert.equal(out.data.error.code, 'INVALID_INPUT');
+  assert.deepEqual(out.data.error.details.supportedExtensions, ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx']);
+  assert.equal(f.requests.length, 0);
+});
+test('文档可以直接上传到小组目录并保留目标语义', async t => {
+  const f = await fixture(t, (q, send) => {
+    if (q.url.pathname === '/group/getGroupDetailInfo') { send({ groupId: 'g1', groupName: '研究组', groupType: 1 }); return true; }
+    if (q.url.pathname === '/resource/tag/getTagTree' && q.url.searchParams.get('groupId') === 'g1') { send([tag('group-folder', '资料')]); return true; }
+    if (q.url.pathname === '/document/uploadDoc') { assert.equal(q.body.mountTargetTagId, 'group-folder'); send({ documentId: 'group-task', putUrl: null, callbackHeader: null, objectKey: 'group-object', flashUploaded: true }); return true; }
+  });
+  const file = join(f.dir, 'group.pdf'); await writeFile(file, '%PDF-fixture');
+  const out = await f.run(['doc', 'upload', '--file', file, '--group-id', 'g1', '--to', '/资料']);
+  assert.equal(out.code, 0); assert.deepEqual(out.data.data.target, { groupId: 'g1', path: '/资料' });
+  assert.equal(out.data.data.documentId, 'group-task');
+  assert.equal((await f.run(['doc', 'tasks'])).data.data[0].groupId, 'g1');
+});
 test('pending 列表中消失不能推断文档已就绪', async t => {
   const f = await fixture(t, (q, send) => { if (q.url.pathname === '/document/listPendingDocs') { send([]); return true; } });
   const out = await f.run(['doc', 'status', '--document-id', 'task1']); assert.equal(out.code, 0); assert.equal(out.data.data.status, 'UNKNOWN'); assert.ok(f.requests.every(q => q.method === 'GET'));

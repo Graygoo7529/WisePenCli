@@ -2,6 +2,18 @@
 
 下文 `W` 代表 Windows 的 `.\wisepen.cmd`，或 Linux/macOS/Git Bash 的 `./wisepen`。执行时替换入口。需要精确输入契约时用 `W schema --command "命令" --json`。
 
+## 上传文档
+
+支持 PDF、DOC/DOCX、PPT/PPTX、XLS/XLSX，单文件最大 100 MiB。上传到个人目录或小组子目录：
+
+```text
+W doc upload --file <本地文件.pdf> --to /研究 --json
+W doc upload --file <本地文件.pdf> --group "研究组" --to /资料 --json
+W doc upload --file <本地文件.pdf> --group-id <groupId> --to /资料 --json
+```
+
+命令返回 documentId 和目标信息；documentId 只代表上传处理任务。小组根 `/` 可以浏览，但不能作为挂载目标，先用 `drive mkdir` 创建子目录。格式错误会在发出网络请求前返回支持的扩展名列表。
+
 ## 文档任务恢复
 
 ```text
@@ -14,7 +26,7 @@ W doc retry --document-id <documentId> --json
 W doc cancel --document-id <documentId> --yes --json
 ```
 
-tasks 是数据目录中的记录，pending 是服务器的未完成任务。status 只读；refresh/wait 可能推进处理。pending 中没有任务不能推断 READY；以明确状态和返回的资源 ID 为准。retry/cancel 有状态限制，不能用它们重做传输结果不确定的上传。停止 wait 不取消服务端任务。
+tasks 是数据目录中的记录，pending 是服务器的未完成任务。status 只读；refresh/wait 可能推进处理。pending 中没有任务不能推断 READY；以明确状态为准。当前服务的状态响应可能不带 resourceId，不能按文件名盲猜资源；需要时用 search，并仅在名称完全匹配且结果唯一时继续。retry/cancel 有状态限制，不能用它们重做传输结果不确定的上传。停止 wait 不取消服务端任务。
 
 会话过期时先请用户按 nextActions 重新登录，再查询原 documentId。下载已有文件需要 `--overwrite`；下载中断不能当作完整文件。
 
