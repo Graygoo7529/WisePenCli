@@ -14,7 +14,7 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "docs:contracts": "npm run build && node scripts/generate-contracts.mjs",
     "build:portable": "npm run build && node scripts/build-portable.mjs",
-    "build:release": "npm run build && node scripts/build-release.mjs",
+    "build:release": "npm run build && node scripts/build-portable.mjs --release",
     "prepack": "npm run build"
   },
   "dependencies": {
