@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { Context } from '../runtime/context.js';
 
-export type CommandDef = { name: string; description: string; input: z.ZodType; effect: 'read' | 'write' | 'local' | 'experimental'; available?: boolean; options?: [string, string][]; run: (ctx: Context, input: Record<string, unknown>) => Promise<unknown> };
+export const VERSION = '0.2.0';
+export type CommandDef = { name: string; description: string; input: z.ZodObject; effect: 'read' | 'write' | 'local' | 'experimental'; available?: boolean; options?: [string, string][]; run: (ctx: Context, input: Record<string, unknown>) => Promise<unknown> };
 export const commands: CommandDef[] = [];
 export function define(def: CommandDef): void { commands.push(def); }
 export const text = (input: Record<string, unknown>, key: string): string => input[key] as string;

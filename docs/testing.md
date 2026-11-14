@@ -20,7 +20,9 @@ sudo "$(command -v node)" scripts/verify-shared-directory.mjs
 
 ## 便携产物验证
 
-构建后可在开发测试进程设置 `WISEPEN_TEST_PACKAGE=wisepen-cli` 再运行现有测试，以便从产物复制 dist、启动器及生产依赖进入隔离测试目录。这个变量仅供测试脚本使用，不是产品配置或认证环境变量。
+MCP 测试通过真实 stdio 客户端启动便携包，覆盖工具发现、续登、分页、脱敏、输出预算和写入预览。使用同一个测试 HTTP 服务，既不连接正式部署，也不需要安装 agent 宿主。
+
+构建后设置 `WISEPEN_TEST_PACKAGE=wisepen-cli`（本地试用包）或 `WISEPEN_TEST_PACKAGE=releases/wisepen-cli`（干净发布包）再运行现有测试。测试从指定产物复制 dist、启动器及生产依赖到隔离目录。这个变量仅供测试脚本使用，不是产品配置或认证环境变量。
 
 当前本机 Windows 结果：47 项自动化测试中 46 项通过、1 项 POSIX 权限测试跳过；便携产物 5 项关键流程通过。真实 Windows PTY 已验证隐藏密码登录，以及账号/密码提示处 Ctrl+C 返回 130，取消后可再次登录。Linux/macOS、真实两个 OS 账户仍待对应环境执行；未执行项不算通过。详细结果记录在执行计划的实施核对表。
 

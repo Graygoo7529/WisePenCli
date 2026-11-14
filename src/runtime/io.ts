@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { createInterface } from 'node:readline/promises';
 import { readFile, rename, unlink, mkdir, link, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -8,11 +9,13 @@ import { CliError, invalid } from '../errors.js';
 
 let stdinClaimed = false;
 const secrets = new Set<string>();
-export function registerSecret(value: string): string { if (value) secrets.add(value); return value; }
+const requestSecrets = new AsyncLocalStorage<Set<string>>();
+export function withSecrets<T>(fn: () => T): T { return requestSecrets.run(new Set(), fn); }
+export function registerSecret(value: string): string { if (value) (requestSecrets.getStore() ?? secrets).add(value); return value; }
 export function scrub(value: unknown): unknown {
   if (typeof value === 'string') {
     let text = value.replace(/https?:\/\/[^\s"<>]+[?][^\s"<>]+/gi, url => /[?&](authorization|token|signature|x-oss-signature|x-amz-signature|ossaccesskeyid|access_token)=/i.test(url) ? '[签名 URL 已隐藏]' : url);
-    for (const secret of secrets) text = text.split(secret).join('[REDACTED]');
+    for (const secret of requestSecrets.getStore() ?? secrets) text = text.split(secret).join('[REDACTED]');
     return text;
   }
   if (Array.isArray(value)) return value.map(scrub);

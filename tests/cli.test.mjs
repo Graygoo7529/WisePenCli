@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
+import { promisify } from 'node:util';
 import { mkdtemp, realpath, readFile, writeFile, readdir, rm, mkdir, cp, symlink, chmod, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -11,6 +12,8 @@ import * as Y from 'yjs';
 import * as encoding from 'lib0/encoding';
 import * as decoding from 'lib0/decoding';
 import * as sync from 'y-protocols/sync';
+import { Client } from '@modelcontextprotocol/client';
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { segments } from '../dist/domain/resolve.js';
 
 const project = resolve(process.env.WISEPEN_TEST_PACKAGE ?? '.');
@@ -23,6 +26,7 @@ const pythonPage = (list, page = 1, total_page = 1, total = list.length) => ({ l
 const session = (id, title) => ({ id, title, created_at: '2026-11-12T00:00:00Z', updated_at: '2026-11-12T00:00:00Z' });
 const msg = (id, content) => ({ id, role: 'user', createdAt: null, parts: [{ type: 'text', text: content }] });
 const provider = { id: 'aaaaaaaaaaaaaaaaaaaaaaaa', name: '测试供应商', scope: 'USER', type: 'OPENAI_COMPATIBLE', base_url: 'https://example.com/v1', api_key_fingerprint: 'abcd', is_active: true };
+const exec = promisify(execFile);
 
 test('远端路径不使用 Windows 本地路径规则', () => {
   for (const [path, expected] of [['/', []], ['/研究//空 格/', ['研究', '空 格']], ['/c/notes', ['c', 'notes']]]) assert.deepEqual(segments(path), expected);
@@ -218,6 +222,84 @@ test('文件凭据绑定服务，忽略旧环境变量，header 不添加 Bearer
   const saved = JSON.parse(await readFile(join(f.dir, 'auth.json'), 'utf8')); saved.apiUrl = 'https://other.example.com';
   await writeFile(join(f.dir, 'auth.json'), JSON.stringify(saved));
   const bad = await f.run(['auth', 'status']); assert.equal(bad.code, 3); assert.equal(f.requests.length, 1);
+});
+
+async function connectMcp(t, options) {
+  const client = new Client({ name: 'wisepen-test', version: '1.0.0' });
+  await client.connect(new StdioClientTransport({ cwd: tmpdir(), ...options }));
+  t.after(() => client.close());
+  return client;
+}
+
+test('生成的插件配置复用同一便携包，MCP 在 CLI 续登后恢复查询', { timeout: 15_000 }, async t => {
+  const renewed = 'fixture-mcp-renewed';
+  const f = await fixture(t, (q, send) => {
+    if (q.url.pathname === '/auth/login') { send(renewed); return true; }
+    if (q.url.pathname === '/resource/search/globalSearchResources') {
+      assert.equal(q.url.searchParams.get('page'), '2');
+      assert.equal(q.url.searchParams.get('size'), '5');
+      if (q.headers.authorization !== renewed) { send(null, 401, 401); return true; }
+      if (q.url.searchParams.get('keyword') === 'long') { send(javaPage([r('r2', '字'.repeat(1000))])); return true; }
+      send(javaPage([r(undefined, `文档 ${renewed}`)], 2, 3)); return true;
+    }
+    if (q.url.pathname === '/user/getUserInfo') assert.equal(q.headers.authorization, renewed);
+  });
+  await rm(join(f.dir, 'auth.json'));
+  await exec(process.execPath, [join(project, 'scripts', 'build-plugins.mjs'), '--cli-dir', f.root]);
+  const root = join(f.root, 'agent-plugins');
+  const launch = JSON.parse(await readFile(join(root, 'mcp.json'), 'utf8')).mcpServers.wisepen;
+  assert.deepEqual(JSON.parse(await readFile(join(root, 'wisepen', '.mcp.json'), 'utf8')).mcpServers.wisepen, launch);
+  assert.equal(launch.args[0], join(f.root, 'dist', 'mcp.js'));
+  const client = await connectMcp(t, { command: launch.command, args: launch.args });
+  const { tools } = await client.listTools();
+  assert.ok(tools.some(tool => tool.name === 'search' && tool.inputSchema.required.includes('query')));
+  assert.ok(tools.every(tool => tool.annotations.readOnlyHint));
+  for (const name of ['login', 'auth_revoke', 'doc_upload', 'resource_delete', 'note_read']) assert.ok(!tools.some(tool => tool.name === name));
+
+  const status = () => client.callTool({ name: 'auth_status' });
+  const missing = await status();
+  assert.equal(missing.isError, true);
+  assert.equal(missing.structuredContent.error.code, 'LOGIN_REQUIRED');
+  assert.deepEqual(missing.structuredContent.error.nextActions[0].args, ['--data-dir', f.dir, 'login']);
+  const denied = await client.callTool({ name: 'search', arguments: { query: '论文', dataDir: tmpdir() } });
+  assert.equal(denied.structuredContent.error.code, 'INVALID_INPUT');
+  assert.equal(f.requests.length, 0);
+
+  await writeFile(join(f.dir, 'auth.json'), JSON.stringify({ version: 1, apiUrl: f.apiUrl, userId: 'u1', token, loggedInAt: new Date().toISOString() }));
+  const search = query => client.callTool({ name: 'search', arguments: { query, page: 2, size: 5 } });
+  assert.equal((await search('论文')).structuredContent.error.code, 'LOGIN_REQUIRED');
+  assert.equal((await f.run(['login', '--account', 'test', '--password-stdin'], { stdin: 'fixture-password' })).code, 0);
+  const result = await search('论文');
+  assert.equal(result.structuredContent.data.list[0].resourceId, '9007199254740993123');
+  assert.equal(result.structuredContent.data.list[0].resourceName, '文档 [REDACTED]');
+  assert.equal(result.structuredContent.data.page, 2);
+  assert.deepEqual(JSON.parse(result.content[0].text), result.structuredContent);
+  assert.equal((await status()).structuredContent.data.authenticated, true);
+  assert.equal((await f.run(['config', 'set', '--key', 'maxOutputBytes', '--value', '1024'])).code, 0);
+  assert.equal((await search('long')).structuredContent.error.code, 'OUTPUT_LIMIT');
+});
+
+test('MCP 写入需在启动时启用并显式跳过预览', { timeout: 15_000 }, async t => {
+  const f = await fixture(t, (q, send) => {
+    if (q.url.pathname === '/resource/item/renameResource') { send(null); return true; }
+  });
+  const args = [join(f.root, 'dist', 'mcp.js'), '--data-dir', f.dir];
+  const request = { name: 'resource_rename', arguments: { id: 'r1', name: '新名称' } };
+  const readOnly = await connectMcp(t, { command: process.execPath, args });
+  assert.equal((await readOnly.callTool(request)).structuredContent.error.code, 'CAPABILITY_UNAVAILABLE');
+  assert.equal(f.requests.length, 0);
+
+  const writer = await connectMcp(t, { command: process.execPath, args: [...args, '--enable-writes'] });
+  const { tools } = await writer.listTools();
+  assert.ok(tools.some(tool => tool.name === 'resource_rename' && tool.annotations.readOnlyHint === false));
+  assert.ok(!tools.some(tool => ['resource_delete', 'resource_mount', 'doc_upload', 'provider_create'].includes(tool.name)));
+  const preview = await writer.callTool(request);
+  assert.equal(preview.structuredContent.data.dryRun, true);
+  assert.ok(f.requests.every(q => q.method === 'GET'));
+  const result = await writer.callTool({ ...request, arguments: { ...request.arguments, dryRun: false } });
+  assert.equal(result.structuredContent.meta.outcome, 'applied');
+  assert.equal(result.structuredContent.meta.verification, 'read-back');
+  assert.deepEqual(f.requests.filter(q => q.method === 'POST').map(q => q.body), [{ resourceId: 'r1', newName: '新名称' }]);
 });
 test('没有包配置时使用内置服务和包内 data', async t => {
   const f = await fixture(t); await rm(join(f.root, 'wisepen.json'));

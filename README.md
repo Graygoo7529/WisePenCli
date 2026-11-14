@@ -14,6 +14,8 @@ cd wisepen-cli
 
 使用说明见 [CLI 指令说明](docs/CLI使用说明.md)；agent 按任务读取 [Skill](skills/wisepen-cli/SKILL.md)。Skill 仅放在项目和便携包内，没有全局注册。
 
+[MCP 与插件安装](docs/agent-integrations.md) 介绍通用 stdio MCP，以及 Codex、Claude Code 和 DeepSeek Harness 的本地插件。所有入口可复用同一便携包的登录。
+
 ## 开发与构建
 
 ```sh

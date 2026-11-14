@@ -11,6 +11,7 @@ import { localPath } from './paths.js';
 export const PACKAGE_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const DEFAULT_API_URL = 'https://api.wisepen.oriole.cn';
 export const DEFAULT_WEB_URL = 'https://wisepen.oriole.cn';
+export const DEFAULT_OUTPUT_BYTES = 1048576;
 export const ConfigSchema = z.strictObject({
   version: z.literal(1).default(1), apiUrl: z.string().optional(), webUrl: z.string().optional(),
   dataDir: z.string().min(1).optional(), maxOutputBytes: z.number().int().min(1024).max(16777216).optional(),
@@ -61,7 +62,7 @@ export async function loadSettings(dataOverride?: string, root = PACKAGE_ROOT): 
       } catch { throw new CliError('LEGACY_CONFIG_INVALID', '旧配置无法识别。请在包目录 wisepen.json 中明确设置 apiUrl 后再登录；旧数据无需删除。', 2, { path }); }
     }
   }
-  return { packageRoot: root, configFile: join(root, 'wisepen.json'), apiUrl: normalizeUrl(config.apiUrl ?? DEFAULT_API_URL), webUrl: normalizeUrl(config.webUrl ?? DEFAULT_WEB_URL), dataDir, dataDirSource: dataOverride ? 'argument' : config.dataDir ? 'config' : 'default', maxOutputBytes: config.maxOutputBytes ?? 1048576, legacyServices };
+  return { packageRoot: root, configFile: join(root, 'wisepen.json'), apiUrl: normalizeUrl(config.apiUrl ?? DEFAULT_API_URL), webUrl: normalizeUrl(config.webUrl ?? DEFAULT_WEB_URL), dataDir, dataDirSource: dataOverride ? 'argument' : config.dataDir ? 'config' : 'default', maxOutputBytes: config.maxOutputBytes ?? DEFAULT_OUTPUT_BYTES, legacyServices };
 }
 export function assertServiceConfigured(settings: RuntimeSettings): void {
   if (settings.legacyServices.length) throw new CliError('LEGACY_CONFIG_REVIEW_REQUIRED', '发现旧版自定义服务。请先用 config set --key apiUrl --value <地址> 明确选择服务，再 login；旧配置和凭据保留。', 2, { configFile: settings.configFile, services: settings.legacyServices });
