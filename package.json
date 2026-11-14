@@ -1,11 +1,22 @@
 {
   "name": "@wisepen/cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "WisePen 用户与 agent 的命令行客户端",
   "type": "module",
-  "bin": { "wisepen": "dist/cli.js" },
-  "files": ["dist", "docs", "skills", "README.md", "wisepen", "wisepen.cmd"],
-  "engines": { "node": ">=22.13.0" },
+  "bin": {
+    "wisepen": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "skills",
+    "README.md",
+    "wisepen",
+    "wisepen.cmd"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
